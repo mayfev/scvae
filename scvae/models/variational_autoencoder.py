@@ -2739,6 +2739,12 @@ class VariationalAutoencoder:
 
         # Create the gradient descent optimiser with the given learning rate.
         def _optimiser():
+            
+            # Create GaussianSumQuery.
+            dp_sum_query = gaussian_query.GaussianSumQuery(l2_norm_clip=1.0, stddev=0.5)
+            
+            # Create optimizer.
+            #opt = tf_privacy.v1.DPAdamOptimizer(dp_sum_query, 1, False, <standard arguments>)
 
             # Optimiser and training objective of negative loss
             # optimiser = tf.train.AdamOptimizer(self.learning_rate)
