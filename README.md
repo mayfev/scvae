@@ -5,6 +5,10 @@ scVAE is a command-line tool for modelling single-cell transcript counts using v
 Install scVAE using pip for Python 3.6 and 3.7:
 
 	$ python3 -m pip install scvae
+	
+To build scVAE locally run:
+
+	$ pip install -e .
 
 scVAE can then be used to train a variational auto-encoder on a data set of single-cell transcript counts:
 
