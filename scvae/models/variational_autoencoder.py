@@ -26,6 +26,11 @@ import scipy.sparse
 import tensorflow as tf
 import tensorflow_probability as tfp
 
+#tensorflow privacy import
+import tensorflow_privacy as tf_privacy
+
+from tf_privacy.v1 import DPAdamGaussianOptimizer
+
 from scvae.data.data_set import DataSet
 from scvae.defaults import defaults
 from scvae.distributions import (
@@ -2558,6 +2563,9 @@ class VariationalAutoencoder:
         self.parameter_summary = tf.summary.merge(self.parameter_summary_list)
 
     def _setup_loss_function(self):
+        
+        #for DP: Compute the loss as a vector of losses per-example rather than as the mean over a minibatch to support gradient manipulation over each training point.
+        # When using the optimizer, be sure to pass in the loss as a rank-one tensor with one entry for each example.
 
         # Prepare replicated and reshaped arrays by replicating out
         # minibatches in tiles per sample into a shape of (R * L * B, D_x)
@@ -2740,15 +2748,23 @@ class VariationalAutoencoder:
         # Create the gradient descent optimiser with the given learning rate.
         def _optimiser():
             
-            # Create GaussianSumQuery.
-            dp_sum_query = gaussian_query.GaussianSumQuery(l2_norm_clip=1.0, stddev=0.5)
-            
             # Create optimizer.
-            #opt = tf_privacy.v1.DPAdamOptimizer(dp_sum_query, 1, False, <standard arguments>)
+            # opt = DPAdamGaussianOptimizer(l2_norm_clip=1.0, noise_multiplier=0.5, num_microbatches=1,<standard arguments>)
+            
+            # l2_norm_clip (float) - The maximum Euclidean (L2) norm of each gradient that is applied to update model parameters. 
+            # This hyperparameter is used to bound the optimizer's sensitivity to individual training points.
+            
+            #noise_multiplier (float) - The amount of noise sampled and added to gradients during training. 
+            # Generally, more noise results in better privacy (often, but not necessarily, at the expense of lower utility).
 
             # Optimiser and training objective of negative loss
             # optimiser = tf.train.AdamOptimizer(self.learning_rate)
-            optimiser = tf_privacy.v1.DPAdamOptimizer(dp_sum_query,num_microbatches=None,unroll_microbatches=False,while_loop_parallel_iterations=10,*args,**kwargs)
+            optimiser = DPAdamGaussianOptimizer(l2_norm_clip=1.0, noise_multiplier=0.5, num_microbatches=1,self.learning_rate)
+            
+            # l2_norm_clip - Clipping norm (max L2 norm of per microbatch gradients).
+            # noise_multiplier - Ratio of the standard deviation to the clipping norm.
+            # num_microbatches - Number of microbatches into which each minibatch is split. If None, will default to the size of the minibatch, and per-example gradients will be computed.
+            # unroll_microbatches - If true, processes microbatches within a Python loop instead of a tf.while_loop. Can be used if using a tf.while_loop raises an exception.
 
             # Create a variable to track the global step
             self.global_step = tf.Variable(
