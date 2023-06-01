@@ -30,6 +30,7 @@ import tensorflow_probability as tfp
 import tensorflow_privacy as tf_privacy
 
 from tf_privacy.v1 import DPAdamGaussianOptimizer
+from tf_privacy import compute_dp_sgd_privacy_statement
 
 from scvae.data.data_set import DataSet
 from scvae.defaults import defaults
@@ -1237,6 +1238,15 @@ class VariationalAutoencoder:
                         reconstruction_error_train,
                         kl_divergence_train
                     )
+                    #tf_privacy.compute_dp_sgd_privacy_statement(
+                    #number_of_examples: int,
+                    #batch_size: int,
+                    #num_epochs: float,
+                    #noise_multiplier: float,
+                    #delta: float,
+                    #used_microbatching: bool = True,
+                    #max_examples_per_user: Optional[int] = None
+                    #) -> str
                 )
 
                 if validation_set:
