@@ -2769,7 +2769,10 @@ class VariationalAutoencoder:
 
             # Optimiser and training objective of negative loss
             # optimiser = tf.train.AdamOptimizer(self.learning_rate)
-            optimiser = DPAdamGaussianOptimizer(l2_norm_clip=1.0, noise_multiplier=0.5, num_microbatches=1,self.learning_rate)
+            optimiser = DPAdamGaussianOptimizer(l2_norm_clip=1.0, 
+                                                noise_multiplier=0.5, 
+                                                num_microbatches=None,
+                                                learning_rate=self.learning_rate)
             
             # l2_norm_clip - Clipping norm (max L2 norm of per microbatch gradients).
             # noise_multiplier - Ratio of the standard deviation to the clipping norm.
