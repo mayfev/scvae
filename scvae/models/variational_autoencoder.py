@@ -1238,16 +1238,28 @@ class VariationalAutoencoder:
                         reconstruction_error_train,
                         kl_divergence_train
                     )
-                    #tf_privacy.compute_dp_sgd_privacy_statement(
-                    #number_of_examples: int,
+                )
+                
+                # Measuring the differential privacy guarantee
+                #eps = tf_privacy.compute_dp_sgd_privacy_statement(
+                    #number_of_examples: 20000,
                     #batch_size: int,
                     #num_epochs: float,
-                    #noise_multiplier: float,
-                    #delta: float,
-                    #used_microbatching: bool = True,
+                    #noise_multiplier: 0.5,
+                    #delta: 4.0e-5,
+                    #used_microbatching: bool = False,
                     #max_examples_per_user: Optional[int] = None
                     #) -> str
-                )
+                    
+                print('For delta=1e-5, the current epsilon is: %.2f' % eps)
+                    
+                #number_of_examples - Total number of examples in the dataset. For DP-SGD, an "example" corresponds to one row in a minibatch. E.g., for sequence models this would be a sequence of maximum length.
+                #batch_size - The number of examples in a batch. This should be the number of examples in a batch, regardless of whether/how they are grouped into microbatches.
+                #num_epochs - The number of epochs of training. May be fractional.
+                #noise_multiplier - The ratio of the Gaussian noise stddev to the l2 clip norm at each round. It is assumed that the noise_multiplier is constant although the clip norm may be variable if, for example, adaptive clipping is used.
+                #delta - The target delta. A rule of thumb is to set it to be less than the inverse of the training data size (i.e., the population size). 
+                #used_microbatching - Whether microbatching was used (with microbatch size greater than one). Microbatching inflates sensitivity by a factor of two in add-or-remove-one adjacency DP. 
+                #max_examples_per_user - If the data set is constructed to cap the maximum number of examples each user contributes, provide this argument to also print a user-level DP guarantee.
 
                 if validation_set:
 
@@ -2576,6 +2588,7 @@ class VariationalAutoencoder:
         
         #for DP: Compute the loss as a vector of losses per-example rather than as the mean over a minibatch to support gradient manipulation over each training point.
         # When using the optimizer, be sure to pass in the loss as a rank-one tensor with one entry for each example.
+        #Hier bisher nichts verändert, stattdessen minibatch_size=1 gesetzt
 
         # Prepare replicated and reshaped arrays by replicating out
         # minibatches in tiles per sample into a shape of (R * L * B, D_x)
@@ -2779,23 +2792,25 @@ class VariationalAutoencoder:
             # num_microbatches - Number of microbatches into which each minibatch is split. If None, will default to the size of the minibatch, and per-example gradients will be computed.
             # unroll_microbatches - If true, processes microbatches within a Python loop instead of a tf.while_loop. Can be used if using a tf.while_loop raises an exception.
 
+            #Nachfolgende Zeilen müssen vermutlich raus, da bei DPAdam nicht mehr gegeben
             # Create a variable to track the global step
-            self.global_step = tf.Variable(
-                0,
-                name="global_step",
-                trainable=False
-            )
+            #self.global_step = tf.Variable(
+            #    0,
+            #    name="global_step",
+            #    trainable=False
+            #)
 
-            gradients = optimiser.compute_gradients(-self.lower_bound_weighted)
-            clipped_gradients = [
-                (tf.clip_by_value(gradient, -1., 1.), variable)
-                for gradient, variable in gradients
-            ]
-            self.optimiser = optimiser.apply_gradients(
-                clipped_gradients,
-                global_step=self.global_step
-            )
+            #gradients = optimiser.compute_gradients(-self.lower_bound_weighted)
+            #clipped_gradients = [
+            #    (tf.clip_by_value(gradient, -1., 1.), variable)
+            #    for gradient, variable in gradients
+            #]
+            #self.optimiser = optimiser.apply_gradients(
+            #    clipped_gradients,
+            #    global_step=self.global_step
+            #)
 
+        #Diese Zeilen noch relevant? Was machen die überhaupt?
         # Make sure that the updates of the moving_averages in minibatch_norm
         # layers are performed before the train_step
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
