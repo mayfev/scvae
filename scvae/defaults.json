@@ -48,7 +48,7 @@
 		"dropout_keep_probabilities": [],
 		"count_sum": false,
 		"number_of_epochs": 200,
-		"minibatch_size": 100,
+		"minibatch_size": 1,
 		"learning_rate": 1e-4,
 		"sample_size": 0,
 		"run_id": "",
