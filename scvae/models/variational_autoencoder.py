@@ -1244,7 +1244,7 @@ class VariationalAutoencoder:
                 #eps = tf_privacy.compute_dp_sgd_privacy_statement(
                     #number_of_examples: 20000,
                     #batch_size: int,
-                    #num_epochs: float,
+                    #num_epochs: 5,
                     #noise_multiplier: 0.5,
                     #delta: 4.0e-5,
                     #used_microbatching: bool = False,
