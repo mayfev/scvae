@@ -1251,7 +1251,7 @@ class VariationalAutoencoder:
                     #max_examples_per_user: Optional[int] = None
                     #) -> str
                     
-                print('For delta=1e-5, the current epsilon is: %.2f' % eps)
+                #print('For delta=4.0e-5, the current epsilon is: %.2f' % eps)
                     
                 #number_of_examples - Total number of examples in the dataset. For DP-SGD, an "example" corresponds to one row in a minibatch. E.g., for sequence models this would be a sequence of maximum length.
                 #batch_size - The number of examples in a batch. This should be the number of examples in a batch, regardless of whether/how they are grouped into microbatches.
